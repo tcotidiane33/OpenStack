@@ -1,3 +1,6 @@
+<img width="1024" height="576" alt="image" src="https://github.com/user-attachments/assets/eb478ab0-bedf-42a9-b6f9-5d68b4e1c23d" />
+
+
 # **Guide Complet d'Installation et Configuration d'OpenStack**  
 *(Version détaillée avec exemples pratiques)*  
 
@@ -191,7 +194,10 @@ Ce guide vous permet de :
 
 
 *(Document mis à jour le 2024-07-21)*
- =======================================================================================================**************************************************************************************************** =======================================================================================================
+ =======================================================================================================
+************************************************
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/edc357b5-6992-41bc-89e8-d05a8a9397f9" />
+**************************************************** =======================================================================================================
 
 # **Guide Expert d'OpenStack : Concepts, Installation et Pratique Avancée**
 
@@ -333,7 +339,9 @@ Ce guide combine **théorie approfondie** et **pratique immédiate** avec :
 - **Focus sur les cas réels** (HA, sécurité, dépannage)  
 - **Intégration d'outils modernes** (Ceph, Prometheus).  
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/f2c5f600-144f-4853-be91-e1b6f9a2bf6c" />
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # **Guide Avancé d'OpenStack : Architecture, Flux de Données et Implémentation**
 
@@ -513,7 +521,9 @@ Ce guide explique :
 2. **La configuration** avec des exemples reproductibles.  
 3. **Le dépannage** basé sur des cas réels.  
 
-==============================================================================================================================================================================
+==========================================================
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/cb95de9a-cac1-4add-a3bc-defe66499d04" />
+====================================================================================================================
 
 # **Guide d'Architecture Technique d'OpenStack : Flux et Design**
 
@@ -679,7 +689,9 @@ Ce guide explique :
 3. **Les bonnes pratiques** pour la production.
 
 
-#####################################################################################################
+#######################################
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/31a08db9-f77e-48fa-833d-28cd985c0bee" />
+##############################################################
 
 # **Résumé Complet d'OpenStack : Flux, Workflows et Configuration**
 
@@ -1087,7 +1099,8 @@ openstack server create --image ubuntu-22.04 --flavor m1.large --network fronten
 *(Document évolutif – Mettez à jour régulièrement vos déploiements !)* 🌟
 
 
-=======================================================================================
+==================================  <img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/01325cd5-b950-4cd8-a59b-e75a895d5723" />
+=====================================================
 # **Projets Concrets avec OpenStack : Solutions Clés en Main**
 
 ## **1. Plateforme de Développement Cloud pour Équipes Agile**
@@ -1300,7 +1313,8 @@ openstack network create ctf-net --no-share --provider-network-type vxlan
 
 Ces implémentations transforment OpenStack en plateforme polyvalente pour des cas d'usage réels avec des gains mesurables 
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++  <img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/fec6cc4f-77e9-42c4-8a4c-e9373b6bb0f9" />
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # **Guide Complet des Erreurs OpenStack et Solutions Associées**
 
@@ -1558,5 +1572,6 @@ Ce guide couvre 90% des erreurs courantes dans OpenStack. Pour les problèmes co
 3. **Rechercher** l'erreur exacte dans [la documentation officielle](https://docs.openstack.org/)
 4. **Tester** les correctifs dans un environnement de staging
 
-> 💡 **Conseil Pro** : Utilisez [os-collect-config](https://docs.openstack.org/developer/os-collect-config/) pour automatiser la collecte des diagnostics.#   O p e n S t a c k  
+> 💡 **Conseil Pro** : Utilisez [os-collect-config](https://docs.openstack.org/developer/os-collect-config/) pour automatiser la collecte des diagnostics.#   O p e n S t a c k 
+ 
  
