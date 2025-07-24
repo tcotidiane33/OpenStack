@@ -42,65 +42,78 @@ After Ceph cluster already deployed as external storage, then OpenStack can be i
 Let’s take a look at the steps required to set up Ceph Cluster using kubeadm. The steps look something like the following:
 
 1. On deployer / Controller1 login as root and configure host on /etc/hosts
-tee -a /etc/hosts<<EOF
-### LIST SERVERS FOR CEPH CLUSTER 
-172.16.3.21 controller1
-172.16.3.22 controller2
-172.16.3.23 controller3
-172.16.3.24 compute1
-172.16.3.25 compute2
+```bash 
+  tee -a /etc/hosts<<EOF
+  ### LIST SERVERS FOR CEPH CLUSTER 
+  172.16.3.21 controller1
+  172.16.3.22 controller2
+  172.16.3.23 controller3
+  172.16.3.24 compute1
+  172.16.3.25 compute2
+  
+  172.16.4.21 controller1
+  172.16.4.22 controller2
+  172.16.4.23 controller3
+  172.16.4.24 compute1
+  172.16.4.25 compute2
+  EOF
+```
 
-172.16.4.21 controller1
-172.16.4.22 controller2
-172.16.4.23 controller3
-172.16.4.24 compute1
-172.16.4.25 compute2
-EOF
 2. Configure passwordless to root user, hostname and timezone from Deployer
+```bash 
 ssh-keygen -t rsa
 ssh-copy-id root@controller1
 ssh-copy-id root@controller2
 ssh-copy-id root@controller3
 ssh-copy-id root@compute1
 ssh-copy-id root@compute2
+```
 
 ## Or copy manual file id_rsa.pub from Deployer node to 
 ## other nodes located in .ssh/authorized_keys
 Set hostname and timezone for all nodes
-
-for node in controller{1..3} compute{1..2}
-do
-  echo "=== Execute on $node ==="
-  ssh root@$node hostnamectl set-hostname $node
-  ssh root@$node timedatectl set-timezone Asia/Jakarta
-  echo ""
-  sleep 2
-done
+```bash 
+  for node in controller{1..3} compute{1..2}
+  do
+    echo "=== Execute on $node ==="
+    ssh root@$node hostnamectl set-hostname $node
+    ssh root@$node timedatectl set-timezone Asia/Jakarta
+    echo ""
+    sleep 2
+  done
+```
 3. Update dan Upgrade package on Each Node
-apt-get update -y; apt-get upgrade -y
-4. Install Docker CE on Each Node
-apt-get install apt-transport-https \
-  ca-certificates \
-  curl \
-  gnupg-agent \
-  software-properties-common -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor > /etc/apt/trusted.gpg.d/docker-ce.gpg
-echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -sc) stable" > /etc/apt/sources.list.d/docker-ce.list
-apt-get update; apt-get install docker-ce docker-ce-cli containerd.io -y
-systemctl enable --now docker
-5. Install cephadm Utility on Deployer / Controller1
+```bash 
+  apt-get update -y; apt-get upgrade -y
+```
+5. Install Docker CE on Each Node
+```bash 
+  apt-get install apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common -y
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor > /etc/apt/trusted.gpg.d/docker-ce.gpg
+  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -sc) stable" > /etc/apt/sources.list.d/docker-ce.list
+  apt-get update; apt-get install docker-ce docker-ce-cli containerd.io -y
+  systemctl enable --now docker
+```
+7. Install cephadm Utility on Deployer / Controller1
 Start from here execute only on Deployer / Controller1 as root
-
-wget -q -O- 'https://download.ceph.com/keys/release.asc' | gpg --dearmor -o /etc/apt/trusted.gpg.d/cephadm.gpg
-echo deb https://download.ceph.com/debian-reef/ $(lsb_release -sc) main > /etc/apt/sources.list.d/cephadm.list
-apt-get update
-apt-cache policy cephadm; apt-get install cephadm -y
+```bash 
+  wget -q -O- 'https://download.ceph.com/keys/release.asc' | gpg --dearmor -o /etc/apt/trusted.gpg.d/cephadm.gpg
+  echo deb https://download.ceph.com/debian-reef/ $(lsb_release -sc) main > /etc/apt/sources.list.d/cephadm.list
+  apt-get update
+  apt-cache policy cephadm; apt-get install cephadm -y
+```
 6. Initialize Ceph Cluster Monitor
-cephadm bootstrap --mon-ip=172.16.3.21 \
-  --cluster-network 172.16.4.0/24 \
-  --initial-dashboard-password=INPUTYOURPASSWORD \
-  --dashboard-password-noupdate \
-  --allow-fqdn-hostname | tee cephadm-bootstrap.log
+   ```bash 
+    cephadm bootstrap --mon-ip=172.16.3.21 \
+      --cluster-network 172.16.4.0/24 \
+      --initial-dashboard-password=INPUTYOURPASSWORD \
+      --dashboard-password-noupdate \
+      --allow-fqdn-hostname | tee cephadm-bootstrap.log
+  ```
 The output should be like this:
 
 Zoom image will be displayed
@@ -108,36 +121,40 @@ Zoom image will be displayed
 
 Enable Ceph CLI on Deployer and verify that ceph command is accessible
 ```bash 
-/usr/sbin/cephadm shell \
-  --fsid XXXXXXXXXXXXXXXXXXXXXXX \
-  -c /etc/ceph/ceph.conf \
-  -k /etc/ceph/ceph.client.admin.keyring
-cephadm add-repo --release reef; cephadm install ceph-common
-ceph versions
+  /usr/sbin/cephadm shell \
+    --fsid XXXXXXXXXXXXXXXXXXXXXXX \
+    -c /etc/ceph/ceph.conf \
+    -k /etc/ceph/ceph.client.admin.keyring
+  cephadm add-repo --release reef; cephadm install ceph-common
+  ceph versions
 ```
 <img width="645" height="228" alt="image" src="https://github.com/user-attachments/assets/b1448047-8bdc-4410-acb0-4cd45aa6c6e7" />
 
 7. Adding hosts to the cluster
 Install the cluster’s public SSH key in the new host’s root user’s
-
-for node in controller{1..3} compute{1..2}
-do
-  echo "=== Copying ceph.pub to $node ==="
-  ssh-copy-id -f -i /etc/ceph/ceph.pub root@$node
-  echo ""
-  sleep 2
-done
+```bash 
+  for node in controller{1..3} compute{1..2}
+  do
+    echo "=== Copying ceph.pub to $node ==="
+    ssh-copy-id -f -i /etc/ceph/ceph.pub root@$node
+    echo ""
+    sleep 2
+  done
+```
 Tell Ceph that the new node is part of the cluster
-
-for node in controller{1..3} compute{1..2}
-do
-  ceph orch host add $node
-done
-ceph orch host ls
+```bash 
+  for node in controller{1..3} compute{1..2}
+  do
+    ceph orch host add $node
+  done
+  ceph orch host ls
+```
 8. Deploy OSDs to the cluster
-ceph orch device ls
-ceph orch apply osd --all-available-devices --method raw
-9. Set label on all nodes
+   ```bash 
+    ceph orch device ls
+    ceph orch apply osd --all-available-devices --method raw
+  ```
+10. Set label on all nodes
 Set label mon on node controller1, controller2, andcontroller3
 
 for node in controller{1..3} compute{1..2}
@@ -145,23 +162,28 @@ do
   ceph orch host label add $node mon
 done
 Set label osd on all nodes
-
-for node in controller{1..3} compute{1..2}
-do
-  ceph orch host label add $node osd
-done
-ceph orch host ls
+```bash 
+  for node in controller{1..3} compute{1..2}
+  do
+    ceph orch host label add $node osd
+  done
+  ceph orch host ls
+```
 10. Create pool for OpenStack
-for pool_name in volumes images backups vms
-do
-  ceph osd pool create $pool_name
-  rbd pool init $pool_name
-done
+    ```bash 
+      for pool_name in volumes images backups vms
+      do
+        ceph osd pool create $pool_name
+        rbd pool init $pool_name
+      done
+    ```
 11. Create ceph keyring
-ceph auth get-or-create client.glance mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=images' -o /etc/ceph/ceph.client.glance.keyring
-ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=volumes, allow rwx pool=images' -o /etc/ceph/ceph.client.cinder.keyring
-ceph auth get-or-create client.nova mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=vms, allow rx pool=images' -o /etc/ceph/ceph.client.nova.keyring
-ceph auth get-or-create client.cinder-backup mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=backups' -o /etc/ceph/ceph.client.cinder-backup.keyring
+    ```bash 
+      ceph auth get-or-create client.glance mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=images' -o /etc/ceph/ceph.client.glance.keyring
+      ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=volumes, allow rwx pool=images' -o /etc/ceph/ceph.client.cinder.keyring
+      ceph auth get-or-create client.nova mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=vms, allow rx pool=images' -o /etc/ceph/ceph.client.nova.keyring
+      ceph auth get-or-create client.cinder-backup mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=backups' -o /etc/ceph/ceph.client.cinder-backup.keyring
+    ```
 Now verify ceph cluster and see everything is great and check Ceph dashboard, access IP address of Controller1 https://controller1:8443/
 
 Zoom image will be displayed
