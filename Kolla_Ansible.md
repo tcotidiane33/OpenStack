@@ -86,7 +86,7 @@ Set hostname and timezone for all nodes
 ```bash 
   apt-get update -y; apt-get upgrade -y
 ```
-5. Install Docker CE on Each Node
+4. Install Docker CE on Each Node
 ```bash 
   apt-get install apt-transport-https \
     ca-certificates \
@@ -98,7 +98,7 @@ Set hostname and timezone for all nodes
   apt-get update; apt-get install docker-ce docker-ce-cli containerd.io -y
   systemctl enable --now docker
 ```
-7. Install cephadm Utility on Deployer / Controller1
+5. Install cephadm Utility on Deployer / Controller1
 Start from here execute only on Deployer / Controller1 as root
 ```bash 
   wget -q -O- 'https://download.ceph.com/keys/release.asc' | gpg --dearmor -o /etc/apt/trusted.gpg.d/cephadm.gpg
@@ -113,7 +113,7 @@ Start from here execute only on Deployer / Controller1 as root
       --initial-dashboard-password=INPUTYOURPASSWORD \
       --dashboard-password-noupdate \
       --allow-fqdn-hostname | tee cephadm-bootstrap.log
-  ```
+    ```
 The output should be like this:
 
 Zoom image will be displayed
