@@ -340,7 +340,9 @@ Ce guide combine **théorie approfondie** et **pratique immédiate** avec :
 - **Intégration d'outils modernes** (Ceph, Prometheus).  
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 <img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/f2c5f600-144f-4853-be91-e1b6f9a2bf6c" />
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # **Guide Avancé d'OpenStack : Architecture, Flux de Données et Implémentation**
@@ -522,6 +524,7 @@ Ce guide explique :
 3. **Le dépannage** basé sur des cas réels.  
 
 ==========================================================
+
 <img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/cb95de9a-cac1-4add-a3bc-defe66499d04" />
 ====================================================================================================================
 
