@@ -3,6 +3,7 @@
 In today’s tech landscape, cloud computing, especially with OpenStack, has become the backbone of modern infrastructure. OpenStack offers a powerful solution for organizations to create and manage their cloud environments, providing a range of services essential for scalable and flexible operations. However, deploying OpenStack for production requires careful consideration of scalability, reliability, and security.
 
 Zoom image will be displayed
+<img width="720" height="405" alt="image" src="https://github.com/user-attachments/assets/ebe4f03d-ca4f-4283-b4db-440cbf27e37e" />
 
 Kolla Ansible is highly opinionated out of the box, but allows for complete customization. This permits operators with minimal experience to deploy OpenStack quickly and as experience grows modify the OpenStack configuration to suit the operator’s exact requirements. Kolla ansible provide production-ready containers and deployment tools for operating OpenStack clouds. This journal focuses on the practical aspects of deploying a production-ready OpenStack environment using Kolla Ansible. Kolla Ansible simplifies the deployment process through automation, making it easier for administrators to create a robust OpenStack cloud. Let’s dive into the world of cloud computing, where simplicity meets scalability.
 
@@ -10,12 +11,17 @@ More about kolla ansible: https://docs.openstack.org/kolla/latest/
 
 OpenStack Topology
 Zoom image will be displayed
+<img width="720" height="281" alt="image" src="https://github.com/user-attachments/assets/c090c944-7aa4-4ecc-af0e-530e3862cd34" />
 
 Ceph Topology
 Zoom image will be displayed
+<img width="720" height="205" alt="image" src="https://github.com/user-attachments/assets/bbe43968-fbba-4513-9b54-7b2281dd4fd3" />
+
 
 IP Allocation
 Zoom image will be displayed
+<img width="1100" height="365" alt="image" src="https://github.com/user-attachments/assets/4cc8df16-65a5-4542-b74d-338bf2eb2ff5" />
+
 
 Prerequisites:
 5 Servers (3 controller+storage, 2 compute+storage)
@@ -98,15 +104,18 @@ cephadm bootstrap --mon-ip=172.16.3.21 \
 The output should be like this:
 
 Zoom image will be displayed
+<img width="720" height="379" alt="image" src="https://github.com/user-attachments/assets/1d387d07-5302-426d-80ee-04a9b0d1a653" />
 
 Enable Ceph CLI on Deployer and verify that ceph command is accessible
-
+```bash 
 /usr/sbin/cephadm shell \
   --fsid XXXXXXXXXXXXXXXXXXXXXXX \
   -c /etc/ceph/ceph.conf \
   -k /etc/ceph/ceph.client.admin.keyring
 cephadm add-repo --release reef; cephadm install ceph-common
 ceph versions
+```
+<img width="645" height="228" alt="image" src="https://github.com/user-attachments/assets/b1448047-8bdc-4410-acb0-4cd45aa6c6e7" />
 
 7. Adding hosts to the cluster
 Install the cluster’s public SSH key in the new host’s root user’s
@@ -156,18 +165,20 @@ ceph auth get-or-create client.cinder-backup mon 'allow r' osd 'allow class-read
 Now verify ceph cluster and see everything is great and check Ceph dashboard, access IP address of Controller1 https://controller1:8443/
 
 Zoom image will be displayed
+<img width="720" height="383" alt="image" src="https://github.com/user-attachments/assets/86534b82-8f7a-4f62-9f31-c7d89e80dda5" />
 
 ceph status; ceph osd tree; ceph df
 ceph orch ps; ceph osd pool ls
 ls -lh /etc/ceph/
 Zoom image will be displayed
+<img width="720" height="299" alt="image" src="https://github.com/user-attachments/assets/4792659a-0eca-4e99-90a1-8d999a219f0e" />
 
 * Install OpenStack with Kolla ansible
 Let’s take a look at the steps required to install OpenStack using deployment tools kolla-ansible. The steps look something like the following:
 
 1. On deployer/Controller1, configure host for OpenStack
 Execute only on Deployer / Controller1
-
+```bash 
 tee -a /etc/hosts <<EOF
 ### LIST SERVERS FOR OPENSTACK
 172.16.1.21 controller1 controller1.internal.achikam.net
@@ -184,6 +195,7 @@ tee -a /etc/hosts <<EOF
 10.8.60.25 compute2.public.achikam.net
 10.8.60.55 public.achikam.net
 EOF
+```
 2. Update System, Install Python build and virtual environment dependencies on Deployer / Controller1
 apt-get update -y
 apt-get install python3-dev libffi-dev gcc libssl-dev python3-selinux python3-setuptools python3-venv -y
@@ -226,7 +238,7 @@ Backup original file multinode
 cp multinode multinode.bak
 Edit file multinode, it will looks like below
 
-
+```bash 
 cat multinode
 ----
 [control]
@@ -258,6 +270,7 @@ compute2
 [deployment]
 localhost       ansible_connection=local
 ...
+```
 Test connection using ansible and ping module
 
 ansible -i multinode all -m ping
@@ -266,14 +279,16 @@ kolla-genpwd
 kolla-ansible -i multinode certificates
 7. Create Directory for Kolla Ansible Configuration
 Create kolla config directory for nova, glance, and cinder
-
+```bash 
 mkdir /etc/kolla/config
 mkdir /etc/kolla/config/nova
 mkdir /etc/kolla/config/glance
 mkdir -p /etc/kolla/config/cinder/cinder-volume
 mkdir /etc/kolla/config/cinder/cinder-backup
+```
 Copy file ceph.conf and ceph keyring to kolla config directory
 
+```bash 
 cp /etc/ceph/ceph.conf /etc/kolla/config/cinder/
 cp /etc/ceph/ceph.conf /etc/kolla/config/nova/
 cp /etc/ceph/ceph.conf /etc/kolla/config/glance/
@@ -283,7 +298,7 @@ cp /etc/ceph/ceph.client.cinder.keyring /etc/kolla/config/nova/
 cp /etc/ceph/ceph.client.cinder.keyring /etc/kolla/config/cinder/cinder-volume/
 cp /etc/ceph/ceph.client.cinder.keyring /etc/kolla/config/cinder/cinder-backup/
 cp /etc/ceph/ceph.client.cinder-backup.keyring /etc/kolla/config/cinder/cinder-backup/
-
+```
 for node in controller{2..3} compute{1..2}
 do
   scp -r /etc/ceph/ root@$node:/etc/
@@ -291,7 +306,7 @@ done
 8. Create Main Configuration File for Kolla Ansible using globals.yml
 Edit globals.yml file then verify main configuration with command
 grep -v "#" /etc/kolla/globals.yml | tr -s [:space:]
-
+```bash 
 ### /etc/kolla/globals.yml
 ---
 kolla_base_distro: "ubuntu"
@@ -332,9 +347,11 @@ nova_backend_ceph: "yes"
 nova_compute_virt_type: "kvm"
 neutron_ovn_distributed_fip: "yes"
 ...
+```
 9. Deploy OpenStack
 After configuration is set, we can proceed to the deployment phase. First we need to setup basic host-level dependencies, like docker. Kolla Ansible provides a playbook that will install all required services in the correct versions.
 
+```bash 
 ### Bootstrap servers with kolla deploy dependencies
 kolla-ansible -i multinode bootstrap-servers
 
@@ -346,35 +363,48 @@ kolla-ansible -i multinode deploy
 
 ### Do post-deploy after OpenStack was successfuly deployed
 kolla-ansible -i multinode post-deploy
+```
 10. Configure OpenStack Client
 Add root ca to ca-certificates
-
+```bash 
 cat /etc/kolla/certificates/ca/root.crt | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+```
 Add CA Path to file RC admin-openrc.sh
-
+```bash 
 echo "export OS_CACERT=/etc/ssl/certs/ca-certificates.crt" >> /etc/kolla/admin-openrc.sh
+```
 Install OpenStack Client
-
+```bash 
 pip3 install python-openstackclient
+```
 Verify OpenStack client
-
+```bash 
 openstack --version
+```
 11. Verify OpenStack cluster, see everything is great and check Ceph Cluster was integrated with OpenStack
+```bash 
 source ~/kolla-venv/bin/activate
 source /etc/kolla/admin-openrc.sh
 openstack endpoint list
 openstack service list
 openstack compute service list; openstack network agent list
 openstack volume service list; cinder get-pools
+```
 Zoom image will be displayed
+<img width="720" height="355" alt="image" src="https://github.com/user-attachments/assets/fe31bc3d-0770-42fa-83b3-2bba0ae056ee" />
+
 
 Access horizon using kolla_external_fqdn which is in this case is https://public.achikam.net
 
 Zoom image will be displayed
+<img width="720" height="373" alt="image" src="https://github.com/user-attachments/assets/3c055a8e-dfee-4fe0-a868-c5af48995abe" />
+
 
 Zoom image will be displayed
+<img width="720" height="388" alt="image" src="https://github.com/user-attachments/assets/b74a48c4-0e75-48ae-80ac-fe4b9370b0a0" />
 
 Zoom image will be displayed
+<img width="1100" height="598" alt="image" src="https://github.com/user-attachments/assets/f435fd5f-5ac7-485a-9c12-6237e23e089c" />
 
 [OPTIONAL] there is an after post-deploy kolla ansible here Using OpenStack After Kolla Ansible Deployment
 
